@@ -1,0 +1,13 @@
+{
+  "name": "parche-baq",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "prestart": "npm run build",
+    "start": "node src/server.ts",
+    "test": "node --test tests/*.test.ts"
+  }
+}

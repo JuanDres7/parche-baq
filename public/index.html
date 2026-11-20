@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18392f">
+  <meta name="description" content="Viajes compartidos entre estudiantes en Barranquilla.">
+  <title>Parche · Viajes compartidos en Barranquilla</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/app.webmanifest">
+  <link rel="stylesheet" href="/styles.css?v=river">
+  <script type="module" src="/app.js?v=river"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Ir al contenido</a>
+  <header class="topbar" hidden>
+    <div class="topbar-inner">
+      <a href="#explorar" class="brand" aria-label="Parche, explorar rutas">
+        <img src="/icon.svg?v=river" width="38" height="38" alt="">
+        <span>Parche</span>
+      </a>
+      <nav class="nav" aria-label="Navegación principal" id="nav"></nav>
+      <div class="header-actions" id="header-actions"></div>
+    </div>
+  </header>
+  <main class="page" id="main">
+    <section id="access" class="access" aria-label="Acceso a Parche">
+      <div class="access-art">
+        <div class="access-brand"><img src="/icon.svg?v=river" width="45" height="45" alt="">Parche</div>
+        <div class="access-caption"><span><span data-icon="pin"></span> Barranquilla, Atlántico</span><p>Al campus,<br>en compañía.</p></div>
+      </div>
+      <div id="access-panel" class="access-panel"><p role="status">Comprobando tu sesión…</p></div>
+    </section>
+    <section hidden id="explore" aria-labelledby="hero-title">
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="hero-city"><span data-icon="pin"></span>Barranquilla, Atlántico</div>
+          <h1 id="hero-title">¿Para dónde vas?</h1>
+          <p>Encuentra un cupo con estudiantes que van en tu dirección.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true"></div>
+      </div>
+      <form id="filters" class="trip-search" role="search">
+        <label class="location-field"><span data-icon="locate"></span><span>Sales de<input name="origin" list="locations" type="search" placeholder="Barrio o punto de salida" autocomplete="off"></span></label>
+        <label class="location-field"><span data-icon="pin"></span><span>Vas hacia<input name="destination" list="locations" type="search" placeholder="Campus o destino" autocomplete="off"></span></label>
+        <button type="submit" class="button"><span data-icon="search"></span>Ver rutas</button>
+        <datalist id="locations"></datalist>
+      </form>
+      <div class="section-heading">
+        <div><h2>Rutas compartidas</h2></div>
+        <div class="section-actions" id="section-actions"></div>
+      </div>
+      <div class="explore-layout">
+        <section class="results" aria-label="Lista de rutas">
+          <div class="result-filters">
+            <div class="filter-row">
+              <label class="filter-field"><span data-icon="calendar"></span><span class="sr-only">Fecha de salida</span><select name="date"><option value="all">Cualquier fecha</option><option value="today">Hoy</option><option value="tomorrow">Mañana</option><option value="week">Próximos 7 días</option></select></label>
+              <label class="filter-field"><span data-icon="sliders"></span><span class="sr-only">Ordenar rutas</span><select name="sort"><option value="soon">Recomendadas</option><option value="price">Menor costo</option><option value="seats">Más cupos</option></select></label>
+            </div>
+          </div>
+          <div class="results-label" id="results-label" aria-live="polite">Cargando rutas…</div>
+          <div class="cards" id="routes"></div>
+        </section>
+        <section id="map-panel" class="map-panel" aria-label="Mapa interactivo de Barranquilla">
+          <div id="map" class="map" tabindex="0" aria-label="Mapa de Barranquilla. Usa las flechas para desplazarte y más o menos para acercar o alejar.">
+            <canvas id="map-canvas" aria-hidden="true"></canvas>
+            <div id="map-markers" class="map-markers"></div>
+          </div>
+          <div class="map-caption"><span data-icon="map"></span> Mapa de Barranquilla</div>
+          <div id="map-controls" class="map-controls" aria-label="Controles del mapa"></div>
+          <div id="map-preview" class="map-preview"></div>
+          <a id="map-attribution" class="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a>
+        </section>
+      </div>
+    </section>
+    <section id="driver-panel" class="driver-panel" aria-labelledby="driver-title" hidden>
+      <header class="driver-heading">
+        <div><h1 id="driver-title">Mis rutas</h1><p>Organiza tus salidas y consulta quién viaja contigo.</p><div id="driver-rating" class="driver-reputation" hidden></div></div>
+        <button type="button" class="button" data-action="publish"><span data-icon="plus"></span>Crear ruta</button>
+      </header>
+      <div class="driver-metrics" id="driver-metrics"></div>
+      <div class="driver-layout">
+        <section class="driver-agenda" aria-label="Agenda de rutas">
+          <div class="tabs" aria-label="Estado de rutas">
+            <button type="button" data-action="driver-tab" data-tab="active">Próximas</button>
+            <button type="button" data-action="driver-tab" data-tab="past">Historial</button>
+            <button type="button" data-action="driver-tab" data-tab="cancelled">Canceladas</button>
+          </div>
+          <div class="driver-routes" id="driver-routes"></div>
+        </section>
+        <div id="driver-map-slot"></div>
+      </div>
+    </section>
+    <section id="secondary" class="secondary" hidden></section>
+    <footer hidden class="footer"><span><strong>Parche</strong> Viajes compartidos entre estudiantes.</span><span>Prototipo local · Barranquilla, Colombia</span></footer>
+  </main>
+  <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
