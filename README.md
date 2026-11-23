@@ -2,6 +2,21 @@
 
 Parche es un prototipo académico de viajes compartidos entre estudiantes de Barranquilla. Desde una sola cuenta puedes publicar una ruta y reservar un cupo en la de otro estudiante.
 
+## Demo pública
+
+La demostración para el docente está disponible en **https://juanpres7.github.io/parche-baq/** (rama `gh-pages`). Abre el enlace, pulsa **Pasajera** o **Conductor** y sigue el flujo de la sección «Presentar el flujo». No necesitas instalar nada.
+
+GitHub Pages solo sirve archivos estáticos: no puede ejecutar el servidor Node ni la base SQLite. Por eso la compilación pública incluye `src/client/demo-api.ts`, que reproduce los mismos endpoint (`/api/session`, `/api/trips`, reservas, pagos, calificaciones, etc.) dentro del navegador y guarda el estado en `localStorage`. Las cuentas y rutas de ejemplo son las mismas del servidor; la contraseña de las cuentas de demostración es `Parche123`. Los cambios de la demo son locales al navegador y se reinician al borrar los datos del sitio.
+
+Para regenerar y publicar el sitio:
+
+```powershell
+npm run build:static
+# copia el contenido de dist/ a la rama gh-pages y súbela
+```
+
+El producto con servidor real sigue disponible en el equipo con `npm start`. Los tres estudios (mercado, técnico y económico) se entregan como documentos independientes y no se publican en el sitio.
+
 ## Ejecutar en el equipo
 
 Ejecuta este comando desde la carpeta del proyecto con Node.js 24 o superior.

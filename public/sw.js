@@ -1,5 +1,5 @@
 const cacheName = 'parche-__CACHE_VERSION__';
-const shell = ['/', '/styles.css', '/app.js', '/presentation.js', '/map.js', '/places.js', '/icon.svg', '/avenida.jpg', '/campus.jpg', '/ribera.jpg', '/app.webmanifest', '/icon-192.png', '/icon-512.png', '/icon-maskable.png', '/barranquilla.json'];
+const shell = ['/', '/styles.css', '/app.js', '/demo-api.js', '/presentation.js', '/map.js', '/places.js', '/icon.svg', '/avenida.jpg', '/campus.jpg', '/ribera.jpg', '/app.webmanifest', '/icon-192.png', '/icon-512.png', '/icon-maskable.png', '/barranquilla.json'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(cacheName).then(cache => cache.addAll(shell)).then(() => self.skipWaiting()));

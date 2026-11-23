@@ -1,3 +1,4 @@
+import './demo-api.js';
 import { institutions, locationDistance, places } from './places.js';
 import { avatar, canRate, card, driverScore, esc, estimate, icon, journey, localDate, money, placeById, placeName, statusTag, tripDate, tripPhoto } from './presentation.js';
 import { mapPanel, setupMap } from './map.js';

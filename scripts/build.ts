@@ -2,6 +2,8 @@ import { cpSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'nod
 import { stripTypeScriptTypes } from 'node:module';
 import { createHash } from 'node:crypto';
 
+const demo = process.argv.includes('--static');
+
 mkdirSync('dist', { recursive: true });
 cpSync('public', 'dist', { recursive: true });
 for (const filename of readdirSync('src/client')) {
@@ -27,8 +29,11 @@ function assetURLs(source: string) {
     files.includes(file) ? `${quote}/${release}/${file}${quote}` : original);
 }
 for (const file of ['index.html', 'sw.js']) {
-  const source = readFileSync(`public/${file}`, 'utf8').replace('__CACHE_VERSION__', version);
+  let source = readFileSync(`public/${file}`, 'utf8').replace('__CACHE_VERSION__', version);
+  if (demo && file === 'index.html') {
+    source = source.replace('window.PARCHE_DEMO = false;', 'window.PARCHE_DEMO = true;');
+  }
   writeFileSync(`dist/${file}`, assetURLs(source));
 }
 writeFileSync(`dist/${release}/app.webmanifest`, assetURLs(readFileSync('public/app.webmanifest', 'utf8')));
-console.log('Parche compilado en dist/');
+console.log(demo ? 'Parche compilado en dist/ (demo estática)' : 'Parche compilado en dist/');
