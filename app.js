@@ -83,13 +83,13 @@ function navigate(next      ) {
 async function api   (path        , method = 'GET', data         )             {
   let response          ;
   try {
-    response = await fetch(`/api${path}`, {
+    response = await fetch(`api${path}`, {
       method, cache: 'no-store',
       headers: data ? { 'Content-Type': 'application/json' } : undefined,
       body: data ? JSON.stringify(data) : undefined,
     });
   } catch {
-    throw new Error('No pudimos conectar con el servidor local de Parche.');
+    throw new Error('No pudimos conectar con Parche.');
   }
   const result = await response.json();
   if (!response.ok) {
@@ -348,7 +348,9 @@ function showDialog(title        , subtitle        , content        , photo     
   detailMap?.dispose();
   detailMap = undefined;
   dialog.classList.toggle('photo-dialog', Boolean(photo));
-  dialog.innerHTML = `<div class="dialog-content" ${photo ? `style="--cover:url(${photo})"` : ''}><div class="dialog-header"><div><h2 id="dialog-title" tabindex="-1">${esc(title)}</h2>${subtitle ? `<p>${esc(subtitle)}</p>` : ''}</div><button class="icon-button" type="button" data-action="close" aria-label="Cerrar ventana">${icon('close')}</button></div>${content}</div>`;
+  // La URL debe ser absoluta: el navegador resuelve url() dentro de la hoja de estilos versionada.
+  const cover = photo ? new URL(photo, document.baseURI).href : '';
+  dialog.innerHTML = `<div class="dialog-content" ${photo ? `style="--cover:url('${cover}')"` : ''}><div class="dialog-header"><div><h2 id="dialog-title" tabindex="-1">${esc(title)}</h2>${subtitle ? `<p>${esc(subtitle)}</p>` : ''}</div><button class="icon-button" type="button" data-action="close" aria-label="Cerrar ventana">${icon('close')}</button></div>${content}</div>`;
   if (!dialog.open) dialog.showModal();
   dialog.scrollTop = 0;
   dialog.querySelector             ('#dialog-title')?.focus({ preventScroll: true });
@@ -741,6 +743,6 @@ window.addEventListener('appinstalled', () => {
   renderHeader();
   notify('Parche se instaló.');
 });
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(console.error);
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.error);
 
 void boot();

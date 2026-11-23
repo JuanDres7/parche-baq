@@ -35,7 +35,7 @@ h1,h2,.card-route strong,.access-caption p{font-family:Georgia,"Times New Roman"
 /* Arrival and account access */
 .page:has(.access:not([hidden])){width:100%;padding:0}
 .access{display:grid;grid-template-columns:1.12fr 1fr;min-height:100svh;background:var(--paper)}
-.access-art{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;color:#fff8e8;background:var(--deep) url('/avenida.jpg') center 63% / cover;padding:clamp(26px,5vw,78px)}
+.access-art{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;color:#fff8e8;background:var(--deep) url('../avenida.jpg') center 63% / cover;padding:clamp(26px,5vw,78px)}
 .access-art::before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(180deg,#0c201994,transparent 32%,#0a20181a 50%,#081c16e8)}
 .access-brand{font-size:2.25rem}.access-caption{padding-bottom:2vh}
 .access-caption>span,.hero-city{display:inline-flex;align-items:center;gap:7px;font-size:.88rem;font-weight:600}
@@ -53,7 +53,7 @@ h1,h2,.card-route strong,.access-caption p{font-family:Georgia,"Times New Roman"
 
 /* Exploration */
 .hero{position:relative;isolation:isolate;overflow:hidden;border-radius:22px;background:var(--deep);color:#fff7e7;min-height:242px;display:flex;align-items:center}
-.hero-art{position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,#102c24ee 0%,#163329b5 34%,#132b2338 68%,#10231b22),url('/ribera.jpg') center 58% / cover}
+.hero-art{position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,#102c24ee 0%,#163329b5 34%,#132b2338 68%,#10231b22),url('../ribera.jpg') center 58% / cover}
 .hero-copy{padding:30px clamp(22px,4vw,56px) 45px}
 .hero h1{font-size:clamp(2.8rem,5vw,5rem);line-height:1.04;margin:8px 0}
 .hero p{color:#faf4e4;max-width:420px;font-size:.99rem}.hero-city .icon,.access-caption .icon{width:16px}

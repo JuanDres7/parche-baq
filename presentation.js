@@ -106,8 +106,8 @@ export function journey(trip      )         {
 }
 
 export function tripPhoto(destination        )         {
-  if (destination === 'malecon') return '/ribera.jpg';
-  return ['uninorte','uniatlantico','unilibre','uac','unisimon'].includes(destination) ? '/campus.jpg' : '/avenida.jpg';
+  if (destination === 'malecon') return './ribera.jpg';
+  return ['uninorte','uniatlantico','unilibre','uac','unisimon'].includes(destination) ? './campus.jpg' : './avenida.jpg';
 }
 
 export function card(trip      , selected = false, nearby = '')         {
