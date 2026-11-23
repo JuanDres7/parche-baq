@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import { createHash } from 'node:crypto';
 
@@ -19,6 +19,11 @@ for (const entry of readdirSync('dist', { withFileTypes: true }).sort((a, b) => 
 }
 const version = hash.digest('hex').slice(0, 12);
 const release = `assets-${version}`;
+for (const entry of readdirSync('dist', { withFileTypes: true })) {
+  if (entry.isDirectory() && entry.name.startsWith('assets-') && entry.name !== release) {
+    rmSync(`dist/${entry.name}`, { recursive: true, force: true });
+  }
+}
 mkdirSync(`dist/${release}`, { recursive: true });
 const modules = readdirSync('src/client').filter(file => file.endsWith('.ts')).map(file => file.replace(/\.ts$/, '.js'));
 const files = [...modules, 'styles.css', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'app.webmanifest'];
