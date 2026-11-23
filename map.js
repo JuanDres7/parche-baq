@@ -1,26 +1,26 @@
 import { esc, icon, placeById, placeName } from './presentation.js';
-import type { Trip } from './presentation.ts';
+                                              
 
-type Point = [number, number];
-type Feature = { type: number; points: Point[]; bounds: [number, number, number, number] };
-type EncodedFeature = [number, number, number[]];
-type Edge = { node: string; weight: number };
+                              
+                                                                                           
+                                                 
+                                             
 const worldSize = 2 ** 20;
-const centerDefault: Point = [11.0013, -74.8225];
+const centerDefault        = [11.0013, -74.8225];
 
-function project(lat: number, lon: number): Point {
+function project(lat        , lon        )        {
   const radians = lat * Math.PI / 180;
   return [(lon + 180) * worldSize / 360, worldSize * (0.5 - Math.log(Math.tan(Math.PI / 4 + radians / 2)) / (2 * Math.PI))];
 }
 
-function distance(a: Point, b: Point): number {
+function distance(a       , b       )         {
   return Math.hypot(a[0] - b[0], a[1] - b[1]);
 }
 
 class Queue {
-  entries: { id: string; score: number }[] = [];
+  entries                                  = [];
 
-  push(id: string, score: number) {
+  push(id        , score        ) {
     const entries = this.entries;
     let index = entries.length;
     entries.push({ id, score });
@@ -37,7 +37,7 @@ class Queue {
     const entries = this.entries;
     if (!entries.length) return;
     const first = entries[0];
-    const last = entries.pop()!;
+    const last = entries.pop() ;
     if (!entries.length) return first;
     let index = 0;
     while (index * 2 + 1 < entries.length) {
@@ -52,7 +52,7 @@ class Queue {
   }
 }
 
-const labelData: { name: string; coordinates: Point; type?: 'city' | 'water' | 'road' }[] = [
+const labelData                                                                           = [
   { name: 'BARRANQUILLA', coordinates: [10.9847, -74.8170], type: 'city' },
   { name: 'Río Magdalena', coordinates: [11.026, -74.779], type: 'water' },
   { name: 'Ciénaga de Mallorquín', coordinates: [11.049, -74.840], type: 'water' },
@@ -70,12 +70,12 @@ const labelData: { name: string; coordinates: Point; type?: 'city' | 'water' | '
   { name: 'Soledad', coordinates: [10.920, -74.780], type: 'city' },
 ];
 
-const features: Feature[] = [];
-const network = new Map<string, { point: Point; edges: Edge[] }>();
-const paths = new Map<string, { points: Point[]; schematic: boolean }>();
+const features            = [];
+const network = new Map                                         ();
+const paths = new Map                                                 ();
 const labels = labelData.map(label => ({ ...label, point: project(...label.coordinates) }));
-function connectingRoads(point: Point) {
-  const nearby: { id: string; gap: number }[] = [];
+function connectingRoads(point       ) {
+  const nearby                                = [];
   for (const [id, node] of network) {
     const gap = distance(point, node.point);
     if (gap <= 18) nearby.push({ id, gap });
@@ -83,12 +83,12 @@ function connectingRoads(point: Point) {
   return nearby.sort((a, b) => a.gap - b.gap).slice(0, 12);
 }
 
-function route(trip: Trip) {
+function route(trip      ) {
   const key = `${trip.origin}/${trip.destination}`;
   const cached = paths.get(key);
   if (cached) return cached;
-  const start = project(...placeById.get(trip.origin)!.coords);
-  const end = project(...placeById.get(trip.destination)!.coords);
+  const start = project(...placeById.get(trip.origin) .coords);
+  const end = project(...placeById.get(trip.destination) .coords);
   const fallback = { points: [start, end], schematic: true };
   if (!network.size) return fallback;
   const origins = connectingRoads(start);
@@ -99,54 +99,54 @@ function route(trip: Trip) {
   }
   // Allow a few nearby road connections when the closest point leads to a dead end.
   const queue = new Queue();
-  const scores = new Map<string, number>();
-  const parents = new Map<string, string>();
-  const visited = new Set<string>();
+  const scores = new Map                ();
+  const parents = new Map                ();
+  const visited = new Set        ();
   const approachCost = 3;
   for (const { id, gap } of origins) {
     const cost = approachCost * gap;
     scores.set(id, cost);
-    queue.push(id, cost + distance(network.get(id)!.point, end));
+    queue.push(id, cost + distance(network.get(id) .point, end));
   }
 
-  let target: string | undefined;
+  let target                    ;
   let bestCost = Infinity;
   for (let entry = queue.pop(); entry && entry.score < bestCost; entry = queue.pop()) {
     if (visited.has(entry.id)) continue;
     visited.add(entry.id);
-    const cost = scores.get(entry.id)!;
+    const cost = scores.get(entry.id) ;
     const finalGap = destinations.get(entry.id);
     if (finalGap !== undefined && cost + finalGap * approachCost < bestCost) {
       bestCost = cost + finalGap * approachCost;
       target = entry.id;
     }
-    for (const edge of network.get(entry.id)!.edges) {
+    for (const edge of network.get(entry.id) .edges) {
       const next = cost + edge.weight;
       if (next >= (scores.get(edge.node) ?? Infinity)) continue;
       scores.set(edge.node, next);
       parents.set(edge.node, entry.id);
-      queue.push(edge.node, next + distance(network.get(edge.node)!.point, end));
+      queue.push(edge.node, next + distance(network.get(edge.node) .point, end));
     }
   }
   if (!target) {
     paths.set(key, fallback);
     return fallback;
   }
-  const points: Point[] = [end];
-  for (let id: string | undefined = target; id; id = parents.get(id)) points.push(network.get(id)!.point);
+  const points          = [end];
+  for (let id                     = target; id; id = parents.get(id)) points.push(network.get(id) .point);
   points.push(start);
   const path = { points: points.reverse(), schematic: false };
   paths.set(key, path);
   return path;
 }
 
-function addFeatures(data: EncodedFeature[]) {
+function addFeatures(data                  ) {
   for (const [type, direction, encoded] of data) {
     let lon = 0;
     let lat = 0;
     let prevId = '';
-    const bounds: Feature['bounds'] = [Infinity, Infinity, -Infinity, -Infinity];
-    const points: Point[] = [];
+    const bounds                    = [Infinity, Infinity, -Infinity, -Infinity];
+    const points          = [];
     for (let i = 0; i < encoded.length; i += 2) {
       lon += encoded[i];
       lat += encoded[i + 1];
@@ -158,10 +158,10 @@ function addFeatures(data: EncodedFeature[]) {
       const id = `${lon},${lat}`;
       if (!network.has(id)) network.set(id, { point, edges: [] });
       if (prevId && prevId !== id) {
-        const prev = network.get(prevId)!;
+        const prev = network.get(prevId) ;
         const weight = distance(prev.point, point) * [1.5, 1.21, 1][type];
         if (direction >= 0) prev.edges.push({ node: id, weight });
-        if (direction <= 0) network.get(id)!.edges.push({ node: prevId, weight });
+        if (direction <= 0) network.get(id) .edges.push({ node: prevId, weight });
       }
       prevId = id;
     }
@@ -169,7 +169,7 @@ function addFeatures(data: EncodedFeature[]) {
   }
 }
 
-let loadingMap: Promise<void> | undefined;
+let loadingMap                           ;
 
 function loadMap() {
   loadingMap ??= fetch('/barranquilla.json').then(response => {
@@ -182,7 +182,7 @@ function loadMap() {
   return loadingMap;
 }
 
-export function mapPanel(title: string, kind: 'driver' | 'detail'): string {
+export function mapPanel(title        , kind                     )         {
   return `<section class="map-panel ${kind}-map" aria-label="${esc(title)}">
     <div class="map" tabindex="0" aria-label="${esc(title)}. Usa las flechas para mover el mapa y más o menos para cambiar el zoom.">
       <canvas aria-hidden="true"></canvas>
@@ -194,32 +194,32 @@ export function mapPanel(title: string, kind: 'driver' | 'detail'): string {
   </section>`;
 }
 
-export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
-  const map = panel.querySelector<HTMLElement>('.map')!;
-  const canvas = map.querySelector<HTMLCanvasElement>('canvas')!;
-  const ctx = canvas.getContext('2d')!;
-  const markers = panel.querySelector<HTMLElement>('.map-markers')!;
-  const controls = panel.querySelector<HTMLElement>('.map-controls')!;
+export function setupMap(panel             , onSelect                       ) {
+  const map = panel.querySelector             ('.map') ;
+  const canvas = map.querySelector                   ('canvas') ;
+  const ctx = canvas.getContext('2d') ;
+  const markers = panel.querySelector             ('.map-markers') ;
+  const controls = panel.querySelector             ('.map-controls') ;
   let center = project(...centerDefault);
   let zoom = 12.35;
   let width = 1;
   let height = 1;
   let frame = 0;
   let disposed = false;
-  let fitOnResize: boolean | 'all' = false;
-  let trips: Trip[] = [];
-  let active: Trip | undefined;
-  let markerPositions: { element: HTMLButtonElement; point: Point; offset: number }[] = [];
-  let drag: { id: number; x: number; y: number; anchor: Point } | null = null;
+  let fitOnResize                  = false;
+  let trips         = [];
+  let active                  ;
+  let markerPositions                                                                 = [];
+  let drag                                                             = null;
 
   const scale = () => 2 ** (zoom - 12);
-  const toScreen = (point: Point): Point => [(point[0] - center[0]) * scale() + width / 2, (point[1] - center[1]) * scale() + height / 2];
+  const toScreen = (point       )        => [(point[0] - center[0]) * scale() + width / 2, (point[1] - center[1]) * scale() + height / 2];
 
   function schedule() {
     if (!disposed && !frame) frame = requestAnimationFrame(draw);
   }
 
-  function line(points: Point[]) {
+  function line(points         ) {
     const [x, y] = toScreen(points[0]);
     ctx.moveTo(x, y);
     for (let index = 1; index < points.length; index++) ctx.lineTo(...toScreen(points[index]));
@@ -241,7 +241,7 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
     const top = center[1] - (height / 2 + 8) / factor;
     const bottom = center[1] + (height / 2 + 8) / factor;
     const visible = features.filter(({ bounds: [x0, y0, x1, y1] }) => x1 > left && x0 < right && y1 > top && y0 < bottom);
-    for (const [kind, color] of [[3, '#bbd9d4'], [5, '#e6e6d9'], [4, '#d4e5cd']] as const) {
+    for (const [kind, color] of [[3, '#bbd9d4'], [5, '#e6e6d9'], [4, '#d4e5cd']]         ) {
       ctx.fillStyle = color;
       for (const feature of visible) {
         if (feature.type !== kind) continue;
@@ -298,7 +298,7 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
       if (selected.schematic) ctx.setLineDash([6, 6]);
       ctx.stroke();
       ctx.setLineDash([]);
-      for (const [label, point] of [['A', selected.points[0]], ['B', selected.points.at(-1)!]] as const) {
+      for (const [label, point] of [['A', selected.points[0]], ['B', selected.points.at(-1) ]]         ) {
         const position = toScreen(point);
         ctx.beginPath();
         ctx.arc(...position, 10, 0, Math.PI * 2);
@@ -324,14 +324,14 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
     const focused = document.activeElement instanceof HTMLElement ? document.activeElement.dataset.mapId : undefined;
     const clickable = onSelect ? trips : [];
     markers.innerHTML = clickable.map(trip => `<button type="button" data-map-id="${trip.id}" class="map-marker${trip.id === active?.id ? ' is-selected' : ''}" aria-pressed="${trip.id === active?.id}" aria-label="${esc(`Ruta de ${placeName(trip.origin)} a ${placeName(trip.destination)}`)}" title="${esc(placeName(trip.destination))}">${icon('car')}</button>`).join('');
-    const offsets = new Map<string, number>();
-    markerPositions = Array.from(markers.querySelectorAll<HTMLButtonElement>('button'), (element, index) => {
+    const offsets = new Map                ();
+    markerPositions = Array.from(markers.querySelectorAll                   ('button'), (element, index) => {
       const origin = clickable[index].origin;
       const offset = offsets.get(origin) ?? 0;
       offsets.set(origin, offset + 25);
-      return { element, point: project(...placeById.get(origin)!.coords), offset };
+      return { element, point: project(...placeById.get(origin) .coords), offset };
     });
-    if (focused) markers.querySelector<HTMLElement>(`[data-map-id="${focused}"]`)?.focus({ preventScroll: true });
+    if (focused) markers.querySelector             (`[data-map-id="${focused}"]`)?.focus({ preventScroll: true });
     schedule();
   }
 
@@ -341,7 +341,7 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
     schedule();
   }
 
-  function zoomBy(amount: number, x = width / 2, y = height / 2) {
+  function zoomBy(amount        , x = width / 2, y = height / 2) {
     const old = scale();
     zoom = Math.max(10.6, Math.min(16.3, zoom + amount));
     const delta = 1 / old - 1 / scale();
@@ -352,7 +352,7 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
   controls.innerHTML = [['plus', 'Acercar'], ['minus', 'Alejar'], ['locate', 'Centrar mapa']].map(([id, label]) =>
     `<button type="button" data-control="${id}" class="icon-button" title="${label}" aria-label="${label}">${icon(id)}</button>`).join('');
   controls.addEventListener('click', event => {
-    const key = (event.target as Element).closest<HTMLElement>('[data-control]')?.dataset.control;
+    const key = (event.target           ).closest             ('[data-control]')?.dataset.control;
     if (key === 'locate') {
       if (active) fitRoute();
       else recenter();
@@ -361,11 +361,11 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
     else if (key) zoomBy(key === 'plus' ? 0.6 : -0.6);
   });
   markers.addEventListener('click', event => {
-    const id = (event.target as Element).closest<HTMLElement>('[data-map-id]')?.dataset.mapId;
+    const id = (event.target           ).closest             ('[data-map-id]')?.dataset.mapId;
     if (id) onSelect?.(Number(id));
   });
   map.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || (event.target as Element).closest('button')) return;
+    if (event.button !== 0 || (event.target           ).closest('button')) return;
     drag = { id: event.pointerId, x: event.clientX, y: event.clientY, anchor: [...center] };
     map.setPointerCapture(event.pointerId);
   });
@@ -381,7 +381,7 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
     const rect = map.getBoundingClientRect();
     zoomBy(event.deltaY < 0 ? 0.28 : -0.28, event.clientX - rect.left, event.clientY - rect.top);
   }, { passive: false });
-  const panKeys: Record<string, Point> = { ArrowUp: [0, -55], ArrowDown: [0, 55], ArrowLeft: [-55, 0], ArrowRight: [55, 0] };
+  const panKeys                        = { ArrowUp: [0, -55], ArrowDown: [0, 55], ArrowLeft: [-55, 0], ArrowRight: [55, 0] };
   map.addEventListener('keydown', event => {
     if (event.target !== map) return;
     const step = panKeys[event.key];
@@ -423,12 +423,12 @@ export function setupMap(panel: HTMLElement, onSelect?: (id: number) => void) {
     if (fitOnResize) fitRoute();
     schedule();
   }).catch(() => {
-    const caption = panel.querySelector<HTMLElement>('.map-caption')!;
+    const caption = panel.querySelector             ('.map-caption') ;
     caption.textContent = 'Mapa esquemático';
   });
 
   return {
-    update(next: Trip[], selected?: Trip, focus: boolean | 'all' = false) {
+    update(next        , selected       , focus                  = false) {
       trips = next;
       active = selected;
       fitOnResize = active ? focus : false;

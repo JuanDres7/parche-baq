@@ -1,64 +1,63 @@
-import './demo-api.js';
 import { institutions, locationDistance, places } from './places.js';
 import { avatar, canRate, card, driverScore, esc, estimate, icon, journey, localDate, money, placeById, placeName, statusTag, tripDate, tripPhoto } from './presentation.js';
 import { mapPanel, setupMap } from './map.js';
-import type { Trip, User } from './presentation.ts';
+                                                    
 
-type Detail = { trip: Trip; riders: { name: string; institution: string }[] };
-type Page = 'explorar' | 'mis-viajes' | 'panel' | 'perfil';
-type Mode = 'passenger' | 'driver';
-type InstallEvent = Event & { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> };
+                                                                              
+                                                           
+                                   
+                                                                                                  
 
-const nav = document.querySelector<HTMLElement>('#nav')!;
-const headerActions = document.querySelector<HTMLElement>('#header-actions')!;
-const sectionActions = document.querySelector<HTMLElement>('#section-actions')!;
-const explore = document.querySelector<HTMLElement>('#explore')!;
-const driverPanel = document.querySelector<HTMLElement>('#driver-panel')!;
-const driverMetrics = document.querySelector<HTMLElement>('#driver-metrics')!;
-const driverRoutes = document.querySelector<HTMLElement>('#driver-routes')!;
-const driverMapSlot = document.querySelector<HTMLElement>('#driver-map-slot')!;
+const nav = document.querySelector             ('#nav') ;
+const headerActions = document.querySelector             ('#header-actions') ;
+const sectionActions = document.querySelector             ('#section-actions') ;
+const explore = document.querySelector             ('#explore') ;
+const driverPanel = document.querySelector             ('#driver-panel') ;
+const driverMetrics = document.querySelector             ('#driver-metrics') ;
+const driverRoutes = document.querySelector             ('#driver-routes') ;
+const driverMapSlot = document.querySelector             ('#driver-map-slot') ;
 driverMapSlot.innerHTML = `${mapPanel('Mapa de mis rutas', 'driver')}<div class="driver-map-summary"></div>`;
-const secondary = document.querySelector<HTMLElement>('#secondary')!;
-const filters = document.querySelector<HTMLFormElement>('#filters')!;
-const cards = document.querySelector<HTMLElement>('#routes')!;
-const resultsLabel = document.querySelector<HTMLElement>('#results-label')!;
-const preview = document.querySelector<HTMLElement>('#map-preview')!;
-const dialog = document.querySelector<HTMLDialogElement>('#dialog')!;
-const toast = document.querySelector<HTMLElement>('#toast')!;
-const access = document.querySelector<HTMLElement>('#access')!;
-const accessPanel = document.querySelector<HTMLElement>('#access-panel')!;
-let map: ReturnType<typeof setupMap>;
+const secondary = document.querySelector             ('#secondary') ;
+const filters = document.querySelector                 ('#filters') ;
+const cards = document.querySelector             ('#routes') ;
+const resultsLabel = document.querySelector             ('#results-label') ;
+const preview = document.querySelector             ('#map-preview') ;
+const dialog = document.querySelector                   ('#dialog') ;
+const toast = document.querySelector             ('#toast') ;
+const access = document.querySelector             ('#access') ;
+const accessPanel = document.querySelector             ('#access-panel') ;
+let map                             ;
 
-let user: User | null = null;
-let trips: Trip[] = [];
-let myTrips: Trip[] | null = null;
-let mode: Mode = 'passenger';
-let driverTab: Trip['status'] = 'active';
-let selectedDriverId: number | undefined;
-let driverMap: ReturnType<typeof setupMap> | undefined;
-let detailMap: ReturnType<typeof setupMap> | undefined;
-let page: Page = getPage();
-let selectedId: number | undefined;
+let user              = null;
+let trips         = [];
+let myTrips                = null;
+let mode       = 'passenger';
+let driverTab                 = 'active';
+let selectedDriverId                    ;
+let driverMap                                         ;
+let detailMap                                         ;
+let page       = getPage();
+let selectedId                    ;
 let mobileMap = false;
 let loaded = false;
 let offline = false;
-let installEvent: InstallEvent | undefined;
-let toastTimer: number;
+let installEvent                          ;
+let toastTimer        ;
 let detailRequest = 0;
 let tableRequest = 0;
 let sessionChecked = false;
-let previousFocus: HTMLElement | null = null;
+let previousFocus                     = null;
 
-for (const element of document.querySelectorAll<HTMLElement>('[data-icon]')) element.outerHTML = icon(element.dataset.icon!);
+for (const element of document.querySelectorAll             ('[data-icon]')) element.outerHTML = icon(element.dataset.icon );
 
-function getPage(): Page {
+function getPage()       {
   const hash = location.hash.slice(1);
   if (hash === 'perfil') return 'perfil';
   if (mode === 'driver') return 'panel';
   return hash === 'mis-viajes' ? 'mis-viajes' : 'explorar';
 }
 
-function savedMode(account: User): Mode {
+function savedMode(account      )       {
   const saved = localStorage.getItem(`parche-mode-${account.id}`);
   if (saved === 'driver' || saved === 'passenger') return saved;
   return account.demo && account.email === 'mateo@parche.test' ? 'driver' : 'passenger';
@@ -72,7 +71,7 @@ function syncPage() {
   }
 }
 
-function navigate(next: Page) {
+function navigate(next      ) {
   if (page === next) {
     renderPage();
     return;
@@ -80,8 +79,8 @@ function navigate(next: Page) {
   location.hash = next;
 }
 
-async function api<T>(path: string, method = 'GET', data?: object): Promise<T> {
-  let response: Response;
+async function api   (path        , method = 'GET', data         )             {
+  let response          ;
   try {
     response = await fetch(`/api${path}`, {
       method, cache: 'no-store',
@@ -99,11 +98,11 @@ async function api<T>(path: string, method = 'GET', data?: object): Promise<T> {
   return result;
 }
 
-function message(error: unknown): string {
+function message(error         )         {
   return error instanceof Error ? error.message : 'Ocurrió un error. Intenta de nuevo.';
 }
 
-function notify(text: string, error = false) {
+function notify(text        , error = false) {
   clearTimeout(toastTimer);
   toast.hidden = false;
   toast.classList.toggle('error', error);
@@ -111,7 +110,7 @@ function notify(text: string, error = false) {
   toastTimer = window.setTimeout(() => { toast.hidden = true; }, 4200);
 }
 
-function button(action: string, label: string, glyph = '', style = '', id?: number): string {
+function button(action        , label        , glyph = '', style = '', id         )         {
   return `<button type="button" class="button ${style}" data-action="${action}" ${id ? `data-id="${id}"` : ''}>${glyph ? icon(glyph) : ''}${esc(label)}</button>`;
 }
 
@@ -119,7 +118,7 @@ function renderHeader() {
   const tabs = mode === 'driver'
     ? [['panel', 'Mis rutas', 'car'], ['perfil', 'Perfil', 'user']]
     : [['explorar', 'Explorar', 'map'], ['mis-viajes', 'Mis viajes', 'case'], ['perfil', 'Perfil', 'user']];
-  const brand = document.querySelector<HTMLAnchorElement>('.brand')!;
+  const brand = document.querySelector                   ('.brand') ;
   brand.href = mode === 'driver' ? '#panel' : '#explorar';
   brand.setAttribute('aria-label', mode === 'driver' ? 'Parche, mis rutas' : 'Parche, explorar rutas');
   nav.innerHTML = tabs.map(([id, label, glyph]) => `<a href="#${id}" ${page === id ? 'aria-current="page"' : ''}>${icon(glyph)}${label}</a>`).join('');
@@ -129,7 +128,7 @@ function renderHeader() {
     + (installEvent ? button('install', 'Instalar app', 'install', 'secondary-button') : '');
 }
 
-function filterDate(trip: Trip, which: string): boolean {
+function filterDate(trip      , which        )          {
   const now = Date.now();
   const date = localDate(trip.departure).slice(0, 10);
   if (which === 'today') return date === localDate(new Date(now)).slice(0, 10);
@@ -138,13 +137,13 @@ function filterDate(trip: Trip, which: string): boolean {
   return true;
 }
 
-const dateFilter = document.querySelector<HTMLSelectElement>('select[name="date"]')!;
-const sortFilter = document.querySelector<HTMLSelectElement>('select[name="sort"]')!;
-const distances = new Map<number, [number, number]>();
-document.querySelector('#locations')!.innerHTML = places.map(place =>
+const dateFilter = document.querySelector                   ('select[name="date"]') ;
+const sortFilter = document.querySelector                   ('select[name="sort"]') ;
+const distances = new Map                          ();
+document.querySelector('#locations') .innerHTML = places.map(place =>
   `<option value="${esc(place.name)}">${esc(place.area)}</option>`).join('');
 
-function filteredTrips(): Trip[] {
+function filteredTrips()         {
   const fields = new FormData(filters);
   const origin = String(fields.get('origin') ?? '').trim();
   const destination = String(fields.get('destination') ?? '').trim();
@@ -160,12 +159,12 @@ function filteredTrips(): Trip[] {
   });
   if (sortFilter.value === 'price') found.sort((a, b) => estimate(a) - estimate(b));
   if (sortFilter.value === 'seats') found.sort((a, b) => (b.seats - b.reserved) - (a.seats - a.reserved));
-  const proximity = (trip: Trip) => Math.max(...distances.get(trip.id)!);
+  const proximity = (trip      ) => Math.max(...distances.get(trip.id) );
   if (sortFilter.value === 'soon') found.sort((a, b) => proximity(a) - proximity(b));
   return found;
 }
 
-function empty(title: string, body: string, action = ''): string {
+function empty(title        , body        , action = '')         {
   return `<div class="empty"><strong>${esc(title)}</strong><p>${esc(body)}</p>${action}</div>`;
 }
 
@@ -177,7 +176,7 @@ function renderExplore(focusMap = false) {
   resultsLabel.textContent = loaded ? `${shown.length} ${shown.length === 1 ? 'ruta encontrada' : 'rutas encontradas'}` : 'Cargando rutas…';
   if (offline) resultsLabel.textContent = 'Servidor local sin conexión';
   cards.innerHTML = shown.length ? shown.map(trip => {
-    const [start, end] = distances.get(trip.id)!;
+    const [start, end] = distances.get(trip.id) ;
     const nearby = [start && `Salida a ~${Math.ceil(start * 1000)} m`, end && `Llegada a ~${Math.ceil(end * 1000)} m`].filter(Boolean).join(' · ');
     return card(trip, trip.id === selectedId, nearby);
   }).join('')
@@ -188,7 +187,7 @@ function renderExplore(focusMap = false) {
   preview.innerHTML = selected ? `<div class="preview-card"><span class="preview-icon">${icon('car')}</span><div class="preview-text"><span>Hacia</span><strong title="${esc(placeName(selected.destination))}">${esc(placeName(selected.destination))}</strong></div>${button('detail', 'Ver viaje', '', 'subtle', selected.id)}</div>` : '';
 }
 
-function select(id: number, focusMap: boolean) {
+function select(id        , focusMap         ) {
   if (id === selectedId) return;
   selectedId = id;
   renderExplore(focusMap);
@@ -198,7 +197,7 @@ async function refreshTrips() {
   if (!user || mode === 'driver') return;
   const account = user.id;
   try {
-    const result = await api<{ trips: Trip[] }>('/trips');
+    const result = await api                   ('/trips');
     if (user?.id !== account || mode !== 'passenger') return;
     trips = result.trips;
     offline = false;
@@ -218,15 +217,15 @@ function renderMyTrips() {
     : empty('Aún no tienes reservas', 'Encuentra una ruta que te sirva y reserva un cupo.', '<a class="button" href="#explorar">Explorar rutas</a>')}`;
 }
 
-function selectDriverRoute(id: number) {
+function selectDriverRoute(id        ) {
   selectedDriverId = id;
   renderDriverPanel(true);
 }
 
 function renderDriverPanel(focus = false) {
-  driverMap ??= setupMap(driverMapSlot.querySelector<HTMLElement>('.driver-map')!, selectDriverRoute);
+  driverMap ??= setupMap(driverMapSlot.querySelector             ('.driver-map') , selectDriverRoute);
   const own = (myTrips ?? []).filter(trip => trip.mine);
-  const rating = document.querySelector<HTMLElement>('#driver-rating')!;
+  const rating = document.querySelector             ('#driver-rating') ;
   rating.hidden = !own.length;
   rating.innerHTML = own.length ? driverScore(own[0].driverRating) : '';
   const upcoming = own.filter(trip => trip.status === 'active');
@@ -238,7 +237,7 @@ function renderDriverPanel(focus = false) {
     ['car', 'Cupos libres', available],
   ].map(([glyph, label, value]) => `<div class="driver-stat">${icon(String(glyph))}<strong>${myTrips ? value : '–'}</strong><span>${label}</span></div>`).join('');
 
-  for (const tab of driverPanel.querySelectorAll<HTMLButtonElement>('[data-tab]')) {
+  for (const tab of driverPanel.querySelectorAll                   ('[data-tab]')) {
     tab.setAttribute('aria-pressed', String(tab.dataset.tab === driverTab));
   }
   const visible = own.filter(trip => trip.status === driverTab);
@@ -264,7 +263,7 @@ function renderDriverPanel(focus = false) {
     : empty('No hay rutas canceladas', 'Las rutas que canceles aparecerán aquí.');
   driverMapSlot.hidden = !selected;
   driverMap.update(visible, selected, focus ? true : 'all');
-  driverMapSlot.querySelector<HTMLElement>('.driver-map-summary')!.innerHTML = selected
+  driverMapSlot.querySelector             ('.driver-map-summary') .innerHTML = selected
     ? `<h2>Trayecto seleccionado</h2>${journey(selected)}` : '';
 }
 
@@ -272,7 +271,7 @@ async function loadMyTrips() {
   if (!user) return;
   const request = ++tableRequest;
   try {
-    const result = await api<{ trips: Trip[] }>('/my-trips');
+    const result = await api                   ('/my-trips');
     if (request !== tableRequest) return;
     myTrips = result.trips;
     if (page === 'mis-viajes') renderMyTrips();
@@ -289,7 +288,7 @@ async function loadMyTrips() {
 }
 
 function institutionOptions(value = '') {
-  return `<option value=""${value ? '' : ' selected'} disabled>Selecciona tu institución</option>${institutions.map((name: string) => `<option${name === value ? ' selected' : ''}>${esc(name)}</option>`).join('')}`;
+  return `<option value=""${value ? '' : ' selected'} disabled>Selecciona tu institución</option>${institutions.map((name        ) => `<option${name === value ? ' selected' : ''}>${esc(name)}</option>`).join('')}`;
 }
 
 function renderProfile() {
@@ -318,8 +317,8 @@ function renderProfile() {
 function renderPage() {
   const guest = !user;
   access.hidden = !guest;
-  document.querySelector<HTMLElement>('.topbar')!.hidden = guest;
-  document.querySelector<HTMLElement>('.footer')!.hidden = guest;
+  document.querySelector             ('.topbar') .hidden = guest;
+  document.querySelector             ('.footer') .hidden = guest;
   if (guest) {
     explore.hidden = true;
     secondary.hidden = true;
@@ -328,7 +327,7 @@ function renderPage() {
     return;
   }
   accessPanel.replaceChildren();
-  if (mode === 'passenger') map ??= setupMap(document.querySelector<HTMLElement>('#map-panel')!, id => select(id, true));
+  if (mode === 'passenger') map ??= setupMap(document.querySelector             ('#map-panel') , id => select(id, true));
   renderHeader();
   explore.hidden = page !== 'explorar';
   driverPanel.hidden = page !== 'panel';
@@ -343,18 +342,18 @@ function formError() {
   return '<p class="form-error" role="alert" hidden></p>';
 }
 
-function showDialog(title: string, subtitle: string, content: string, photo?: string) {
-  if (!dialog.open) previousFocus = document.activeElement as HTMLElement | null;
+function showDialog(title        , subtitle        , content        , photo         ) {
+  if (!dialog.open) previousFocus = document.activeElement                      ;
   detailMap?.dispose();
   detailMap = undefined;
   dialog.classList.toggle('photo-dialog', Boolean(photo));
   dialog.innerHTML = `<div class="dialog-content" ${photo ? `style="--cover:url(${photo})"` : ''}><div class="dialog-header"><div><h2 id="dialog-title" tabindex="-1">${esc(title)}</h2>${subtitle ? `<p>${esc(subtitle)}</p>` : ''}</div><button class="icon-button" type="button" data-action="close" aria-label="Cerrar ventana">${icon('close')}</button></div>${content}</div>`;
   if (!dialog.open) dialog.showModal();
   dialog.scrollTop = 0;
-  dialog.querySelector<HTMLElement>('#dialog-title')?.focus({ preventScroll: true });
+  dialog.querySelector             ('#dialog-title')?.focus({ preventScroll: true });
 }
 
-function showAuth(mode: 'login' | 'register') {
+function showAuth(mode                      ) {
   const signup = mode === 'register';
   accessPanel.innerHTML = `
     <nav class="access-tabs" aria-label="Opciones de acceso">
@@ -375,7 +374,7 @@ function showAuth(mode: 'login' | 'register') {
     ${signup ? '' : `<div class="demo-options"><span>Probar con una cuenta de ejemplo</span>${button('demo-passenger', 'Pasajera', 'user', 'secondary-button')}${button('demo-driver', 'Conductor', 'car', 'secondary-button')}</div>`}`;
 }
 
-async function authDone(account: User, preferredMode = savedMode(account)) {
+async function authDone(account      , preferredMode = savedMode(account)) {
   mode = preferredMode;
   localStorage.setItem(`parche-mode-${account.id}`, mode);
   if (dialog.open) dialog.close();
@@ -391,16 +390,16 @@ async function authDone(account: User, preferredMode = savedMode(account)) {
 }
 
 function placeOptions(value = '') {
-  return `<option value=""${value ? '' : ' selected'} disabled>Selecciona un lugar</option>${places.map((place: { id: string; name: string }) => `<option value="${place.id}" ${place.id === value ? 'selected' : ''}>${esc(place.name)}</option>`).join('')}`;
+  return `<option value=""${value ? '' : ' selected'} disabled>Selecciona un lugar</option>${places.map((place                              ) => `<option value="${place.id}" ${place.id === value ? 'selected' : ''}>${esc(place.name)}</option>`).join('')}`;
 }
 
-function publish(trip?: Trip) {
+function publish(trip       ) {
   if (!user || mode !== 'driver') return;
   const lock = Boolean(trip?.reserved);
   showDialog(trip ? 'Editar ruta' : 'Publicar ruta', 'Indica tu trayecto y los cupos que puedes compartir.', `
     <form class="form" data-form="trip" ${trip ? `data-id="${trip.id}"` : ''}>
-      <div class="form-grid"><label class="field">Origen<select name="origin" ${lock ? 'disabled' : 'required'}>${placeOptions(trip?.origin)}</select>${lock ? `<input type="hidden" name="origin" value="${esc(trip!.origin)}">` : ''}</label>
-      <label class="field">Destino<select name="destination" ${lock ? 'disabled' : 'required'}>${placeOptions(trip?.destination)}</select>${lock ? `<input type="hidden" name="destination" value="${esc(trip!.destination)}">` : ''}</label></div>
+      <div class="form-grid"><label class="field">Origen<select name="origin" ${lock ? 'disabled' : 'required'}>${placeOptions(trip?.origin)}</select>${lock ? `<input type="hidden" name="origin" value="${esc(trip .origin)}">` : ''}</label>
+      <label class="field">Destino<select name="destination" ${lock ? 'disabled' : 'required'}>${placeOptions(trip?.destination)}</select>${lock ? `<input type="hidden" name="destination" value="${esc(trip .destination)}">` : ''}</label></div>
       <label class="field">Fecha y hora de salida<input type="datetime-local" name="departure" required min="${localDate(new Date())}" value="${trip ? localDate(trip.departure) : ''}" ${lock ? 'readonly' : ''}><small>Hora de Barranquilla (GMT−5).</small></label>
       <div class="form-grid"><label class="field">Cupos ofrecidos<input type="number" name="seats" min="${Math.max(1, trip?.reserved ?? 0)}" max="6" step="1" value="${trip?.seats ?? 3}" required></label>
       <label class="field">Costo total (COP)<input type="number" name="cost" min="0" max="200000" step="1" value="${trip?.cost ?? ''}" placeholder="Ej. 12000" required ${lock ? 'readonly' : ''}></label></div>
@@ -419,7 +418,7 @@ function passwordForm() {
   </form>`);
 }
 
-function checkout(trip: Trip) {
+function checkout(trip      ) {
   const paid = trip.payment;
   const amount = paid?.amount ?? estimate(trip);
   showDialog(paid ? 'Comprobante de pago' : 'Paga tu cupo', paid ? 'Pago de demostración aprobado.' : 'Tu cupo ya está reservado. Puedes pagar ahora o desde Mis viajes.', `
@@ -438,7 +437,7 @@ function checkout(trip: Trip) {
     </form>`}`);
 }
 
-function rateDriver(trip: Trip) {
+function rateDriver(trip      ) {
   showDialog('Calificar conductor', trip.driver, `
     <form class="form" data-form="rating" data-id="${trip.id}">
       <fieldset class="rating-picker">
@@ -454,7 +453,7 @@ function rateDriver(trip: Trip) {
     </form>`);
 }
 
-function drawDetail(detail: Detail) {
+function drawDetail(detail        ) {
   const { trip, riders } = detail;
   const estimateText = trip.mine || trip.booked ? 'Reparto según los cupos reservados.' : 'Aporte si te unes con la ocupación actual.';
   const canReserve = trip.reserved < trip.seats && trip.status === 'active' && !trip.mine && !trip.booked;
@@ -480,34 +479,34 @@ function drawDetail(detail: Detail) {
     ${trip.mine ? `<div class="detail-note"><h3>Pasajeros</h3>${riders.length ? `<ul>${riders.map(rider => `<li>${esc(rider.name)} · ${esc(rider.institution)}</li>`).join('')}</ul>` : '<p>Todavía nadie ha reservado un cupo.</p>'}</div>` : ''}
   </div>
   ${actions ? `<div class="form-actions detail-actions">${actions}</div>` : ''}`, tripPhoto(trip.destination));
-  detailMap = setupMap(dialog.querySelector<HTMLElement>('.detail-map')!);
+  detailMap = setupMap(dialog.querySelector             ('.detail-map') );
   detailMap.update([trip], trip, true);
 }
 
-async function detail(id: number) {
+async function detail(id        ) {
   if (page === 'explorar') select(id, true);
   const request = ++detailRequest;
   showDialog('Detalle del viaje', 'Consultando cupos y costo…', '');
   try {
-    const data = await api<Detail>(`/trips/${id}`);
+    const data = await api        (`/trips/${id}`);
     if (request === detailRequest && dialog.open) drawDetail(data);
   } catch (error) {
     if (request === detailRequest && dialog.open) showDialog('Viaje no disponible', message(error), '');
   }
 }
 
-function confirmCancellation(id: number, route: boolean) {
+function confirmCancellation(id        , route         ) {
   const title = route ? 'Cancelar ruta' : 'Cancelar reserva';
   const text = route ? 'Tu ruta dejará de aparecer en el mapa. Los pasajeros que reservaron verán la cancelación en Mis viajes.' : 'Tu cupo quedará disponible para otra persona.';
   showDialog(title, text, `<div class="form-actions">${button('detail', 'Volver al viaje', '', 'secondary-button', id)}${button(route ? 'cancel-trip' : 'cancel-reservation', title, '', 'danger', id)}</div>`);
 }
 
-async function tripMutation(id: number, action: string) {
+async function tripMutation(id        , action        ) {
   const reserve = action === 'reserve';
   const route = action === 'cancel-trip';
   if (!user) return renderPage();
   try {
-    const { trip } = await api<{trip: Trip}>(`/trips/${id}${route ? '' : '/reservation'}`, reserve ? 'POST' : 'DELETE');
+    const { trip } = await api              (`/trips/${id}${route ? '' : '/reservation'}`, reserve ? 'POST' : 'DELETE');
     await refreshTrips();
     if (page === 'mis-viajes' || page === 'panel') void loadMyTrips();
     if (dialog.open) dialog.close();
@@ -543,7 +542,7 @@ function leaveSession() {
 
 async function boot() {
   try {
-    user = (await api<{ user: User | null }>('/session')).user;
+    user = (await api                       ('/session')).user;
     if (user) mode = savedMode(user);
     syncPage();
     offline = false;
@@ -588,7 +587,7 @@ dialog.addEventListener('close', () => {
 });
 
 document.addEventListener('click', async event => {
-  const target = (event.target as Element).closest<HTMLButtonElement>('[data-action]');
+  const target = (event.target           ).closest                   ('[data-action]');
   if (!target || target.disabled) return;
   const action = target.dataset.action;
   const id = Number(target.dataset.id);
@@ -609,19 +608,19 @@ document.addEventListener('click', async event => {
     explore.classList.toggle('show-map', mobileMap);
     if (mobileMap) requestAnimationFrame(() => requestAnimationFrame(() => renderExplore(true)));
     renderHeader();
-    sectionActions.querySelector<HTMLElement>('.mobile-toggle')?.focus();
+    sectionActions.querySelector             ('.mobile-toggle')?.focus();
   }
   if (action === 'driver-tab') {
-    driverTab = target.dataset.tab as Trip['status'];
+    driverTab = target.dataset.tab                  ;
     selectedDriverId = undefined;
     renderDriverPanel();
   }
   if (action === 'driver-route-map') {
     selectDriverRoute(id);
     if (window.matchMedia('(max-width: 760px)').matches) {
-      driverMapSlot.querySelector<HTMLElement>('.map')?.focus({ preventScroll: true });
+      driverMapSlot.querySelector             ('.map')?.focus({ preventScroll: true });
       driverMapSlot.scrollIntoView({ block: 'start' });
-    } else driverRoutes.querySelector<HTMLButtonElement>(`[data-action="driver-route-map"][data-id="${id}"]`)?.focus({ preventScroll: true });
+    } else driverRoutes.querySelector                   (`[data-action="driver-route-map"][data-id="${id}"]`)?.focus({ preventScroll: true });
   }
   if (action === 'change-mode' && user) {
     mode = mode === 'driver' ? 'passenger' : 'driver';
@@ -643,7 +642,7 @@ document.addEventListener('click', async event => {
   try {
     if (action === 'demo-passenger' || action === 'demo-driver') {
       const email = action === 'demo-passenger' ? 'sofia@parche.test' : 'mateo@parche.test';
-      await authDone((await api<{ user: User }>('/login', 'POST', { email, password: 'Parche123' })).user,
+      await authDone((await api                ('/login', 'POST', { email, password: 'Parche123' })).user,
         action === 'demo-driver' ? 'driver' : 'passenger');
     }
     if (action === 'logout') {
@@ -652,22 +651,22 @@ document.addEventListener('click', async event => {
       notify('Sesión cerrada.');
     }
     if (action === 'reserve' || action === 'cancel-trip' || action === 'cancel-reservation') await tripMutation(id, action);
-    if (action === 'edit') publish((await api<Detail>(`/trips/${id}`)).trip);
+    if (action === 'edit') publish((await api        (`/trips/${id}`)).trip);
     if (action === 'rate-driver') {
       const currentDialog = dialog.firstElementChild;
-      const fresh = await api<Detail>(`/trips/${id}`);
+      const fresh = await api        (`/trips/${id}`);
       if (dialog.open && dialog.firstElementChild === currentDialog) {
         if (canRate(fresh.trip)) rateDriver(fresh.trip);
         else drawDetail(fresh);
       }
     }
     if (action === 'checkout') {
-      const fresh = await api<Detail>(`/trips/${id}`);
+      const fresh = await api        (`/trips/${id}`);
       if (fresh.trip.booked && fresh.trip.status === 'active') checkout(fresh.trip);
       else drawDetail(fresh);
     }
   } catch (error) {
-    const errorBanner = dialog.querySelector<HTMLElement>('.form-error');
+    const errorBanner = dialog.querySelector             ('.form-error');
     if (dialog.open && errorBanner) {
       errorBanner.textContent = message(error);
       errorBanner.hidden = false;
@@ -676,19 +675,19 @@ document.addEventListener('click', async event => {
 });
 
 document.addEventListener('submit', async event => {
-  const form = event.target as HTMLFormElement;
+  const form = event.target                   ;
   const kind = form.dataset.form;
   if (!kind) return;
   event.preventDefault();
-  const submit = form.querySelector<HTMLButtonElement>('[type="submit"]')!;
-  const banner = form.querySelector<HTMLElement>('.form-error')!;
+  const submit = form.querySelector                   ('[type="submit"]') ;
+  const banner = form.querySelector             ('.form-error') ;
   if (submit.disabled) return;
   submit.disabled = true;
   banner.hidden = true;
   const data = Object.fromEntries(new FormData(form));
   try {
     if (kind === 'login' || kind === 'register') {
-      const { user: account } = await api<{ user: User }>(`/${kind}`, 'POST', data);
+      const { user: account } = await api                (`/${kind}`, 'POST', data);
       await authDone(account, kind === 'register' && data.mode === 'driver' ? 'driver' : savedMode(account));
     }
     if (kind === 'rating') {
@@ -699,13 +698,13 @@ document.addEventListener('submit', async event => {
       notify('Calificación guardada.');
     }
     if (kind === 'payment') {
-      const { trip } = await api<{trip: Trip}>(`/trips/${form.dataset.id}/payment`, 'POST', { amount: Number(data.amount) });
+      const { trip } = await api              (`/trips/${form.dataset.id}/payment`, 'POST', { amount: Number(data.amount) });
       checkout(trip);
       await refreshTrips();
       if (page === 'mis-viajes' || page === 'panel') void loadMyTrips();
     }
     if (kind === 'profile') {
-      user = (await api<{ user: User }>('/profile', 'PATCH', data)).user;
+      user = (await api                ('/profile', 'PATCH', data)).user;
       renderPage();
       notify('Perfil actualizado.');
       void refreshTrips();
@@ -733,7 +732,7 @@ document.addEventListener('submit', async event => {
 
 window.addEventListener('beforeinstallprompt', event => {
   event.preventDefault();
-  installEvent = event as InstallEvent;
+  installEvent = event                ;
   renderHeader();
 });
 window.addEventListener('appinstalled', () => {

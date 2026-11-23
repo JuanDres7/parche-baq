@@ -1,6 +1,6 @@
-export type Place = { id: string; name: string; area: string; coords: [number, number] };
+                                                                                         
 
-export const places: Place[] = [
+export const places          = [
   { id: 'uninorte', name: 'Universidad del Norte', area: 'Corredor Universitario', coords: [11.02133, -74.85127] },
   { id: 'uniatlantico', name: 'Universidad del Atlántico', area: 'Sede Norte', coords: [11.0206, -74.8722] },
   { id: 'unilibre', name: 'Universidad Libre', area: 'Sede Norte', coords: [11.02139, -74.86569] },
@@ -15,12 +15,12 @@ export const places: Place[] = [
   { id: 'soledad', name: 'Portal de Soledad', area: 'Soledad', coords: [10.90760, -74.80050] },
 ];
 
-function normalize(text: string) {
+function normalize(text        ) {
   return text.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
 }
 
 // Distance to the closest matching meeting point, in kilometres as the crow flies.
-export function locationDistance(query: string, endpoint: string): number {
+export function locationDistance(query        , endpoint        )         {
   const text = normalize(query);
   if (!text) return 0;
   const point = places.find(place => place.id === endpoint);

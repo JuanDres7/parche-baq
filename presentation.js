@@ -1,16 +1,16 @@
 import { places } from './places.js';
 
-export type User = { id: number; name: string; email: string; institution: string; bio: string; vehicle: string; demo: number };
-export type Trip = {
-  id: number; origin: string; destination: string; departure: string; seats: number; reserved: number;
-  cost: number; notes: string; status: 'active' | 'past' | 'cancelled'; driver: string;
-  institution: string; vehicle: string; mine: boolean; booked: boolean;
-  payment: { amount: number; receipt: string } | null;
-  rating: number | null;
-  driverRating: { average: number | null; count: number };
-};
+                                                                                                                                
+                    
+                                                                                                      
+                                                                                       
+                                                                       
+                                                      
+                        
+                                                          
+  
 
-const paths: Record<string, string> = {
+const paths                         = {
   star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>',
   pin: '<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
   search: '<circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4.2 4.2"/>',
@@ -33,28 +33,28 @@ const paths: Record<string, string> = {
   install: '<path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/>',
 };
 
-export function icon(name: string): string {
+export function icon(name        )         {
   return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] ?? ''}</svg>`;
 }
 
-const entities: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-export function esc(value: string | number): string {
+const entities                         = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+export function esc(value                 )         {
   return String(value).replace(/[&<>"']/g, character => entities[character]);
 }
 
-export const placeById = new Map<string, { name: string; area: string; coords: [number, number] }>(places.map(place => [place.id, place]));
-export function placeName(id: string): string {
+export const placeById = new Map                                                                  (places.map(place => [place.id, place]));
+export function placeName(id        )         {
   return placeById.get(id)?.name ?? 'Punto de encuentro';
 }
 
-export function localDate(value: Date | string): string {
+export function localDate(value               )         {
   return new Date(new Date(value).valueOf() - 18000000).toISOString().slice(0, 16);
 }
 
 const shortDate = new Intl.DateTimeFormat('es-CO', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'America/Bogota' });
 const longDate = new Intl.DateTimeFormat('es-CO', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Bogota' });
 const time = new Intl.DateTimeFormat('es-CO', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Bogota' });
-export function tripDate(value: string, expanded = false): string {
+export function tripDate(value        , expanded = false)         {
   const today = Date.now();
   const date = localDate(value).slice(0, 10);
   const display = date === localDate(new Date(today)).slice(0, 10) ? 'Hoy'
@@ -63,32 +63,32 @@ export function tripDate(value: string, expanded = false): string {
 }
 
 const pesos = new Intl.NumberFormat('es-CO');
-export function money(amount: number): string {
+export function money(amount        )         {
   return `$${pesos.format(Math.round(amount))}`;
 }
 
-export function estimate(trip: Trip): number {
+export function estimate(trip      )         {
   const addingPassenger = !trip.mine && !trip.booked && trip.reserved < trip.seats && trip.status === 'active';
   return Math.ceil(trip.cost / (1 + trip.reserved + Number(addingPassenger)));
 }
 
-export function avatar(name: string, tone = 0): string {
+export function avatar(name        , tone = 0)         {
   const initials = name.trim().split(/\s+/).slice(0, 2).map(part => Array.from(part)[0]).join('').toUpperCase();
   return `<span class="avatar tone-${tone % 3}" aria-hidden="true">${esc(initials)}</span>`;
 }
 
 const starAverage = new Intl.NumberFormat('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-export function driverScore(score: Trip['driverRating']): string {
+export function driverScore(score                      )         {
   if (score.average === null) return '<span class="driver-score unrated">Sin calificaciones</span>';
   return `<span class="driver-score">${icon('star')} <strong>${starAverage.format(score.average)}/5</strong> <span>(${score.count} ${score.count === 1 ? 'calificación' : 'calificaciones'})</span></span>`;
 }
 
-export function canRate(trip: Trip): boolean {
+export function canRate(trip      )          {
   return trip.status === 'past' && trip.booked && !trip.mine;
 }
 
-export function statusTag(trip: Trip): string {
+export function statusTag(trip      )         {
   if (trip.status === 'cancelled') return '<span class="tag cancelled">Cancelada</span>';
   if (canRate(trip)) {
     return trip.rating === null ? `<span class="tag">${icon('star')} Por calificar</span>`
@@ -101,16 +101,16 @@ export function statusTag(trip: Trip): string {
   return available ? `<span class="tag">${icon('people')} ${available} ${available === 1 ? 'cupo' : 'cupos'}</span>` : '<span class="tag neutral">Sin cupos</span>';
 }
 
-export function journey(trip: Trip): string {
+export function journey(trip      )         {
   return `<span class="journey"><span class="point" aria-hidden="true"></span><span>${esc(placeName(trip.origin))}</span><span class="point end" aria-hidden="true"></span><span>${esc(placeName(trip.destination))}</span></span>`;
 }
 
-export function tripPhoto(destination: string): string {
+export function tripPhoto(destination        )         {
   if (destination === 'malecon') return '/ribera.jpg';
   return ['uninorte','uniatlantico','unilibre','uac','unisimon'].includes(destination) ? '/campus.jpg' : '/avenida.jpg';
 }
 
-export function card(trip: Trip, selected = false, nearby = ''): string {
+export function card(trip      , selected = false, nearby = '')         {
   return `<article class="route-card${selected ? ' selected' : ''}">
     <button type="button" class="card-main" data-action="detail" data-id="${trip.id}">
       <span class="card-top"><span class="card-date">${icon('clock')} ${esc(tripDate(trip.departure))}</span>${statusTag(trip)}</span>

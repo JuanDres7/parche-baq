@@ -3,43 +3,43 @@
 // para GitHub Pages, donde no existe el servidor Node ni la base SQLite.
 import { institutions, places } from './places.js';
 
-type DemoUser = {
-  id: number; name: string; email: string; password: string; institution: string;
-  bio: string; vehicle: string; demo: boolean;
-};
-type DemoTrip = {
-  id: number; driver_id: number; origin: string; destination: string; departure: string;
-  seats: number; cost: number; notes: string; status: 'active' | 'cancelled'; demo: boolean;
-};
-type Reservation = { trip_id: number; user_id: number; created_at: string };
-type Payment = { trip_id: number; user_id: number; amount: number; receipt: string };
-type Rating = { trip_id: number; user_id: number; stars: number };
-type Session = { user_id: number; expires_at: number };
-type State = {
-  users: DemoUser[]; trips: DemoTrip[]; reservations: Reservation[]; payments: Payment[];
-  ratings: Rating[]; sessions: Record<string, Session>; seq: { users: number; trips: number };
-};
-type Data = Record<string, unknown>;
+                 
+                                                                                 
+                                              
+  
+                 
+                                                                                        
+                                                                                            
+  
+                                                                            
+                                                                                     
+                                                                  
+                                                       
+              
+                                                                                         
+                                                                                              
+  
+                                    
 
 const STORAGE_KEY = 'parche-demo-state-v1';
 const TOKEN_KEY = 'parche-demo-token';
 const SESSION_LIFETIME = 7 * 24 * 60 * 60 * 1000;
 
 class DemoError extends Error {
-  status: number;
-  constructor(status: number, message: string) { super(message); this.status = status; }
+  status        ;
+  constructor(status        , message        ) { super(message); this.status = status; }
 }
 
-let state: State | undefined;
+let state                   ;
 
-function randomHex(length: number): string {
+function randomHex(length        )         {
   const bytes = new Uint8Array(length);
   if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
   else for (let index = 0; index < length; index += 1) bytes[index] = Math.floor(Math.random() * 256);
   return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-async function digest(text: string): Promise<string> {
+async function digest(text        )                  {
   if (globalThis.crypto?.subtle) {
     const hash = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
     return Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, '0')).join('');
@@ -50,32 +50,32 @@ async function digest(text: string): Promise<string> {
   return `fallback${(value >>> 0).toString(16)}`;
 }
 
-async function hashPassword(password: string): Promise<string> {
+async function hashPassword(password        )                  {
   const salt = randomHex(16);
   return `${salt}:${await digest(`${salt}:${password}`)}`;
 }
 
-async function passwordMatches(password: string, stored: string): Promise<boolean> {
+async function passwordMatches(password        , stored        )                   {
   const [salt, expected] = stored.split(':');
   return Boolean(salt && expected) && (await digest(`${salt}:${password}`)) === expected;
 }
 
-function nextDayAt(offset: number, hour: number, minute: number): string {
+function nextDayAt(offset        , hour        , minute        )         {
   const local = new Date(Date.now() - 5 * 60 * 60 * 1000);
   local.setUTCDate(local.getUTCDate() + offset);
   local.setUTCHours(hour + 5, minute, 0, 0);
   return local.toISOString();
 }
 
-async function createSeed(): Promise<State> {
+async function createSeed()                 {
   const password = await hashPassword('Parche123');
-  const users: DemoUser[] = [
+  const users             = [
     { id: 1, name: 'Valeria Mendoza', email: 'valeria@parche.test', password, institution: 'Universidad del Norte', bio: '', vehicle: 'Kia Picanto blanco', demo: true },
     { id: 2, name: 'Mateo Torres', email: 'mateo@parche.test', password, institution: 'Universidad Libre', bio: '', vehicle: 'Renault Sandero gris', demo: true },
     { id: 3, name: 'Juan Acosta', email: 'juan@parche.test', password, institution: 'Universidad del Atlántico', bio: '', vehicle: 'Mazda 2 azul', demo: true },
     { id: 4, name: 'Sofía Ríos', email: 'sofia@parche.test', password, institution: 'Universidad Libre', bio: '', vehicle: '', demo: true },
   ];
-  const trips: DemoTrip[] = [
+  const trips             = [
     { id: 1, driver_id: 1, origin: 'buenavista', destination: 'uninorte', departure: nextDayAt(1, 7, 15), seats: 3, cost: 12000, notes: 'Nos encontramos frente a la entrada principal de Buenavista 1.', status: 'active', demo: true },
     { id: 2, driver_id: 2, origin: 'portal', destination: 'unilibre', departure: nextDayAt(1, 8, 0), seats: 4, cost: 18000, notes: 'Punto de encuentro junto a la entrada de la carrera 53.', status: 'active', demo: true },
     { id: 3, driver_id: 3, origin: 'viva', destination: 'uniatlantico', departure: nextDayAt(1, 12, 30), seats: 3, cost: 15000, notes: 'Salida desde la bahía sobre la carrera 51B.', status: 'active', demo: true },
@@ -95,12 +95,12 @@ async function createSeed(): Promise<State> {
   };
 }
 
-function save(): void {
+function save()       {
   if (!state) return;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* almacenamiento lleno */ }
 }
 
-function refreshDemo(): void {
+function refreshDemo()       {
   if (!state) return;
   const now = new Date().toISOString();
   const hasFresh = state.trips.some(trip => trip.demo && trip.status === 'active' && trip.departure > now);
@@ -115,11 +115,11 @@ function refreshDemo(): void {
   save();
 }
 
-async function load(): Promise<void> {
+async function load()                {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as State;
+      const parsed = JSON.parse(raw)         ;
       if (Array.isArray(parsed.users) && Array.isArray(parsed.trips) && parsed.seq) {
         state = parsed;
         state.sessions ??= {};
@@ -139,23 +139,23 @@ async function load(): Promise<void> {
   save();
 }
 
-function respond(payload: unknown, status = 200): Response {
+function respond(payload         , status = 200)           {
   return new Response(JSON.stringify(payload), {
     status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
   });
 }
 
-async function requestData(request: Request): Promise<Data> {
+async function requestData(request         )                {
   try {
-    const data: unknown = await request.json();
+    const data          = await request.json();
     if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error();
-    return data as Data;
+    return data        ;
   } catch {
     throw new DemoError(400, 'Revisa los datos e inténtalo de nuevo.');
   }
 }
 
-function field(data: Data, key: string, label: string, min: number, max: number): string {
+function field(data      , key        , label        , min        , max        )         {
   const value = typeof data[key] === 'string' ? data[key].trim() : '';
   if (value.length < min || value.length > max) {
     throw new DemoError(400, `${label} debe tener ${min > 0 ? `entre ${min} y` : 'hasta'} ${max} caracteres.`);
@@ -163,13 +163,13 @@ function field(data: Data, key: string, label: string, min: number, max: number)
   return value;
 }
 
-function emailField(data: Data): string {
+function emailField(data      )         {
   const email = field(data, 'email', 'El correo', 4, 120).toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new DemoError(400, 'Escribe un correo válido.');
   return email;
 }
 
-function passwordField(data: Data): string {
+function passwordField(data      )         {
   const password = typeof data.password === 'string' ? data.password : '';
   if (password.length < 8 || password.length > 128) {
     throw new DemoError(400, 'La contraseña debe tener entre 8 y 128 caracteres.');
@@ -177,7 +177,7 @@ function passwordField(data: Data): string {
   return password;
 }
 
-function profileFields(data: Data) {
+function profileFields(data      ) {
   const name = field(data, 'name', 'El nombre', 2, 70);
   const email = emailField(data);
   const institution = field(data, 'institution', 'La institución', 2, 70);
@@ -187,7 +187,7 @@ function profileFields(data: Data) {
   return { name, email, institution, bio, vehicle };
 }
 
-function tripFields(data: Data) {
+function tripFields(data      ) {
   const origin = field(data, 'origin', 'El origen', 1, 30);
   const destination = field(data, 'destination', 'El destino', 1, 30);
   if (origin === destination || ![origin, destination].every(id => places.some(place => place.id === id))) {
@@ -211,7 +211,7 @@ function tripFields(data: Data) {
   return { origin, destination, departure: new Date(departureTime).toISOString(), seats, cost, notes };
 }
 
-function sessionUser(): DemoUser | undefined {
+function sessionUser()                       {
   if (!state) return undefined;
   const token = localStorage.getItem(TOKEN_KEY);
   const session = token ? state.sessions[token] : undefined;
@@ -225,7 +225,7 @@ function sessionUser(): DemoUser | undefined {
   return state.users.find(user => user.id === session.user_id);
 }
 
-function setSession(userId?: number): void {
+function setSession(userId         )       {
   if (!state) return;
   const previous = localStorage.getItem(TOKEN_KEY);
   if (previous) delete state.sessions[previous];
@@ -240,45 +240,45 @@ function setSession(userId?: number): void {
   save();
 }
 
-function requireUser(user?: DemoUser): DemoUser {
+function requireUser(user           )           {
   if (!user) throw new DemoError(401, 'Inicia sesión para continuar.');
   return user;
 }
 
-function getUser(id: number): DemoUser {
-  const user = state!.users.find(item => item.id === id);
+function getUser(id        )           {
+  const user = state .users.find(item => item.id === id);
   if (!user) throw new DemoError(404, 'Esta cuenta ya no está disponible.');
   return user;
 }
 
-function publicUser(user: DemoUser) {
+function publicUser(user          ) {
   const { id, name, email, institution, bio, vehicle, demo } = user;
   return { id, name, email, institution, bio, vehicle, demo: demo ? 1 : 0 };
 }
 
-function checkEmail(email: string, id = 0): void {
-  if (state!.users.some(user => user.email === email && user.id !== id)) {
+function checkEmail(email        , id = 0)       {
+  if (state .users.some(user => user.email === email && user.id !== id)) {
     throw new DemoError(409, 'Ya existe una cuenta con este correo.');
   }
 }
 
-function findTrip(id: number): DemoTrip {
-  const trip = state!.trips.find(item => item.id === id);
+function findTrip(id        )           {
+  const trip = state .trips.find(item => item.id === id);
   if (!trip) throw new DemoError(404, 'Esta ruta ya no está disponible.');
   return trip;
 }
 
-function reservationFor(tripId: number, userId?: number): Reservation | undefined {
-  return state!.reservations.find(item => item.trip_id === tripId && item.user_id === userId);
+function reservationFor(tripId        , userId         )                          {
+  return state .reservations.find(item => item.trip_id === tripId && item.user_id === userId);
 }
 
-function presentTrip(trip: DemoTrip, user?: DemoUser) {
+function presentTrip(trip          , user           ) {
   const driver = getUser(trip.driver_id);
-  const reserved = state!.reservations.filter(item => item.trip_id === trip.id).length;
+  const reserved = state .reservations.filter(item => item.trip_id === trip.id).length;
   const booked = Boolean(reservationFor(trip.id, user?.id));
-  const payment = state!.payments.find(item => item.trip_id === trip.id && item.user_id === user?.id);
-  const rating = state!.ratings.find(item => item.trip_id === trip.id && item.user_id === user?.id);
-  const driverRatings = state!.ratings.filter(item => state!.trips.some(ride => ride.id === item.trip_id && ride.driver_id === trip.driver_id));
+  const payment = state .payments.find(item => item.trip_id === trip.id && item.user_id === user?.id);
+  const rating = state .ratings.find(item => item.trip_id === trip.id && item.user_id === user?.id);
+  const driverRatings = state .ratings.filter(item => state .trips.some(ride => ride.id === item.trip_id && ride.driver_id === trip.driver_id));
   const past = trip.departure <= new Date().toISOString();
   return {
     id: trip.id, origin: trip.origin, destination: trip.destination, departure: trip.departure,
@@ -295,14 +295,14 @@ function presentTrip(trip: DemoTrip, user?: DemoUser) {
   };
 }
 
-function ensureActive(trip: DemoTrip): void {
+function ensureActive(trip          )       {
   if (trip.status !== 'active' || trip.departure <= new Date().toISOString()) {
     throw new DemoError(409, 'Esta ruta ya cerró y no admite cambios.');
   }
 }
 
-function ridersFor(tripId: number) {
-  return state!.reservations.filter(item => item.trip_id === tripId)
+function ridersFor(tripId        ) {
+  return state .reservations.filter(item => item.trip_id === tripId)
     .sort((a, b) => a.created_at.localeCompare(b.created_at) || a.user_id - b.user_id)
     .map(item => {
       const user = getUser(item.user_id);
@@ -310,7 +310,7 @@ function ridersFor(tripId: number) {
     });
 }
 
-async function handle(request: Request): Promise<Response> {
+async function handle(request         )                    {
   await load();
   const path = new URL(request.url, location.href).pathname;
   const method = request.method;
@@ -322,8 +322,8 @@ async function handle(request: Request): Promise<Response> {
     const profile = profileFields(data);
     const password = await hashPassword(passwordField(data));
     checkEmail(profile.email);
-    const id = ++state!.seq.users;
-    state!.users.push({ id, ...profile, password, demo: false });
+    const id = ++state .seq.users;
+    state .users.push({ id, ...profile, password, demo: false });
     setSession(id);
     return respond({ user: publicUser(getUser(id)) }, 201);
   }
@@ -331,7 +331,7 @@ async function handle(request: Request): Promise<Response> {
     const data = await requestData(request);
     const email = emailField(data);
     const password = passwordField(data);
-    const account = state!.users.find(item => item.email === email);
+    const account = state .users.find(item => item.email === email);
     if (!account || !(await passwordMatches(password, account.password))) {
       throw new DemoError(401, 'El correo o la contraseña son incorrectos.');
     }
@@ -362,15 +362,15 @@ async function handle(request: Request): Promise<Response> {
       throw new DemoError(400, 'La contraseña actual es incorrecta.');
     }
     account.password = await hashPassword(password);
-    for (const [token, session] of Object.entries(state!.sessions)) {
-      if (session.user_id === account.id) delete state!.sessions[token];
+    for (const [token, session] of Object.entries(state .sessions)) {
+      if (session.user_id === account.id) delete state .sessions[token];
     }
     setSession(account.id);
     return respond({ ok: true });
   }
   if (method === 'GET' && path === '/api/trips') {
     const now = new Date().toISOString();
-    const trips = state!.trips
+    const trips = state .trips
       .filter(trip => trip.status === 'active' && trip.departure > now)
       .sort((a, b) => a.departure.localeCompare(b.departure) || a.id - b.id)
       .map(trip => presentTrip(trip, user));
@@ -378,7 +378,7 @@ async function handle(request: Request): Promise<Response> {
   }
   if (method === 'GET' && path === '/api/my-trips') {
     const account = requireUser(user);
-    const trips = state!.trips
+    const trips = state .trips
       .filter(trip => trip.driver_id === account.id || Boolean(reservationFor(trip.id, account.id)))
       .sort((a, b) => a.departure.localeCompare(b.departure) || a.id - b.id)
       .map(trip => presentTrip(trip, account));
@@ -387,8 +387,8 @@ async function handle(request: Request): Promise<Response> {
   if (method === 'POST' && path === '/api/trips') {
     const account = requireUser(user);
     const data = tripFields(await requestData(request));
-    const trip: DemoTrip = { id: ++state!.seq.trips, driver_id: account.id, ...data, status: 'active', demo: false };
-    state!.trips.push(trip);
+    const trip           = { id: ++state .seq.trips, driver_id: account.id, ...data, status: 'active', demo: false };
+    state .trips.push(trip);
     save();
     return respond({ trip: presentTrip(trip, account) }, 201);
   }
@@ -417,9 +417,9 @@ async function handle(request: Request): Promise<Response> {
     if (trip.status !== 'active' || trip.departure > new Date().toISOString()) {
       throw new DemoError(409, 'Puedes calificar al conductor cuando el viaje haya terminado.');
     }
-    const existing = state!.ratings.find(item => item.trip_id === id && item.user_id === account.id);
+    const existing = state .ratings.find(item => item.trip_id === id && item.user_id === account.id);
     if (existing) existing.stars = stars;
-    else state!.ratings.push({ trip_id: id, user_id: account.id, stars });
+    else state .ratings.push({ trip_id: id, user_id: account.id, stars });
     save();
     return respond({ trip: presentTrip(trip, account) });
   }
@@ -429,16 +429,16 @@ async function handle(request: Request): Promise<Response> {
     const trip = findTrip(id);
     ensureActive(trip);
     if (!reservationFor(id, account.id)) throw new DemoError(403, 'Reserva un cupo antes de pagar.');
-    if (state!.payments.some(item => item.trip_id === id && item.user_id === account.id)) {
+    if (state .payments.some(item => item.trip_id === id && item.user_id === account.id)) {
       return respond({ trip: presentTrip(trip, account) });
     }
-    const reserved = state!.reservations.filter(item => item.trip_id === id).length;
+    const reserved = state .reservations.filter(item => item.trip_id === id).length;
     const amount = Math.ceil(trip.cost / (1 + reserved));
     if (!amount) throw new DemoError(400, 'Este viaje es gratuito.');
     if (quote.amount !== amount) {
       throw new DemoError(409, 'Cambió la ocupación. Vuelve al detalle para revisar el nuevo aporte.');
     }
-    state!.payments.push({ trip_id: id, user_id: account.id, amount, receipt: randomHex(8).toUpperCase() });
+    state .payments.push({ trip_id: id, user_id: account.id, amount, receipt: randomHex(8).toUpperCase() });
     save();
     return respond({ trip: presentTrip(trip, account) });
   }
@@ -447,17 +447,17 @@ async function handle(request: Request): Promise<Response> {
     const trip = findTrip(id);
     ensureActive(trip);
     if (method === 'DELETE') {
-      state!.reservations = state!.reservations.filter(item => !(item.trip_id === id && item.user_id === account.id));
-      state!.payments = state!.payments.filter(item => !(item.trip_id === id && item.user_id === account.id));
-      state!.ratings = state!.ratings.filter(item => !(item.trip_id === id && item.user_id === account.id));
+      state .reservations = state .reservations.filter(item => !(item.trip_id === id && item.user_id === account.id));
+      state .payments = state .payments.filter(item => !(item.trip_id === id && item.user_id === account.id));
+      state .ratings = state .ratings.filter(item => !(item.trip_id === id && item.user_id === account.id));
       save();
       return respond({ trip: presentTrip(trip, account) });
     }
     if (trip.driver_id === account.id) throw new DemoError(400, 'Esta ruta fue publicada por ti.');
     if (reservationFor(id, account.id)) return respond({ trip: presentTrip(trip, account) });
-    const reserved = state!.reservations.filter(item => item.trip_id === id).length;
+    const reserved = state .reservations.filter(item => item.trip_id === id).length;
     if (reserved >= trip.seats) throw new DemoError(409, 'Ya se ocuparon todos los cupos.');
-    state!.reservations.push({ trip_id: id, user_id: account.id, created_at: new Date().toISOString() });
+    state .reservations.push({ trip_id: id, user_id: account.id, created_at: new Date().toISOString() });
     save();
     return respond({ trip: presentTrip(trip, account) });
   }
@@ -473,7 +473,7 @@ async function handle(request: Request): Promise<Response> {
       save();
       return respond({ trip: presentTrip(trip, account) });
     }
-    const reserved = state!.reservations.filter(item => item.trip_id === id).length;
+    const reserved = state .reservations.filter(item => item.trip_id === id).length;
     if (reserved && (data.origin !== trip.origin || data.destination !== trip.destination
       || data.departure !== trip.departure || data.cost !== trip.cost)) {
       throw new DemoError(409, 'La ruta tiene reservas. Puedes actualizar los cupos y el punto de encuentro.');
@@ -487,9 +487,9 @@ async function handle(request: Request): Promise<Response> {
   throw new DemoError(405, 'Esta acción no está disponible.');
 }
 
-function install(): void {
+function install()       {
   const originalFetch = window.fetch.bind(window);
-  window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  window.fetch = async (input                   , init              )                    => {
     const url = input instanceof URL ? input : new URL(typeof input === 'string' ? input : input.url, location.href);
     if (url.origin !== location.origin || !url.pathname.startsWith('/api/')) {
       return originalFetch(input, init);
@@ -504,13 +504,13 @@ function install(): void {
     }
   };
   document.addEventListener('DOMContentLoaded', () => {
-    const footer = document.querySelector<HTMLElement>('.footer span:last-child');
+    const footer = document.querySelector             ('.footer span:last-child');
     if (footer) footer.textContent = 'Demo pública · datos de ejemplo';
   });
 }
 
-declare global {
-  interface Window { PARCHE_DEMO?: boolean }
-}
+                
+                                            
+ 
 
 if (window.PARCHE_DEMO) install();

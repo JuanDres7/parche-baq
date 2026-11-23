@@ -1,6 +1,0 @@
-data/
-dist/
-node_modules/
-.osm-source.json
-.osm-source.xml
-.map-source/
