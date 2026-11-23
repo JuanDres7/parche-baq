@@ -312,7 +312,8 @@ function ridersFor(tripId: number) {
 
 async function handle(request: Request): Promise<Response> {
   await load();
-  const path = new URL(request.url, location.href).pathname;
+  const pathname = new URL(request.url, location.href).pathname;
+  const path = pathname.slice(pathname.indexOf('/api/'));
   const method = request.method;
   const user = sessionUser();
 
@@ -491,7 +492,7 @@ function install(): void {
   const originalFetch = window.fetch.bind(window);
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = input instanceof URL ? input : new URL(typeof input === 'string' ? input : input.url, location.href);
-    if (url.origin !== location.origin || !url.pathname.startsWith('/api/')) {
+    if (url.origin !== location.origin || !url.pathname.includes('/api/')) {
       return originalFetch(input, init);
     }
     const request = input instanceof Request && !init ? input : new Request(url, init);

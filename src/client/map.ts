@@ -172,7 +172,7 @@ function addFeatures(data: EncodedFeature[]) {
 let loadingMap: Promise<void> | undefined;
 
 function loadMap() {
-  loadingMap ??= fetch('/barranquilla.json').then(response => {
+  loadingMap ??= fetch('./barranquilla.json').then(response => {
     if (!response.ok) throw new Error('Mapa no disponible');
     return response.json();
   }).then(addFeatures).catch(error => {

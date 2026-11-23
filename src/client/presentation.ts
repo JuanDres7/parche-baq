@@ -106,8 +106,8 @@ export function journey(trip: Trip): string {
 }
 
 export function tripPhoto(destination: string): string {
-  if (destination === 'malecon') return '/ribera.jpg';
-  return ['uninorte','uniatlantico','unilibre','uac','unisimon'].includes(destination) ? '/campus.jpg' : '/avenida.jpg';
+  if (destination === 'malecon') return './ribera.jpg';
+  return ['uninorte','uniatlantico','unilibre','uac','unisimon'].includes(destination) ? './campus.jpg' : './avenida.jpg';
 }
 
 export function card(trip: Trip, selected = false, nearby = ''): string {

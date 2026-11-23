@@ -30,8 +30,8 @@ const files = [...modules, 'styles.css', 'icon.svg', 'icon-192.png', 'icon-512.p
 for (const file of files) cpSync(`dist/${file}`, `dist/${release}/${file}`);
 
 function assetURLs(source: string) {
-  return source.replace(/(["'])\/([\w.-]+)(?:\?v=[\w-]+)?\1/g, (original, quote, file) =>
-    files.includes(file) ? `${quote}/${release}/${file}${quote}` : original);
+  return source.replace(/(["'])(?:\.\/|\/)?([\w.-]+)(?:\?v=[\w-]+)?\1/g, (original, quote, file) =>
+    files.includes(file) ? `${quote}${release}/${file}${quote}` : original);
 }
 for (const file of ['index.html', 'sw.js']) {
   let source = readFileSync(`public/${file}`, 'utf8').replace('__CACHE_VERSION__', version);
@@ -40,5 +40,6 @@ for (const file of ['index.html', 'sw.js']) {
   }
   writeFileSync(`dist/${file}`, assetURLs(source));
 }
-writeFileSync(`dist/${release}/app.webmanifest`, assetURLs(readFileSync('public/app.webmanifest', 'utf8')));
+// El manifiesto vive dentro de la carpeta versionada: sus rutas ya son relativas a ella.
+writeFileSync(`dist/${release}/app.webmanifest`, readFileSync('public/app.webmanifest', 'utf8'));
 console.log(demo ? 'Parche compilado en dist/ (demo estática)' : 'Parche compilado en dist/');

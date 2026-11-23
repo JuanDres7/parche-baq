@@ -1,5 +1,7 @@
 const cacheName = 'parche-__CACHE_VERSION__';
-const shell = ['/', '/styles.css', '/app.js', '/demo-api.js', '/presentation.js', '/map.js', '/places.js', '/icon.svg', '/avenida.jpg', '/campus.jpg', '/ribera.jpg', '/app.webmanifest', '/icon-192.png', '/icon-512.png', '/icon-maskable.png', '/barranquilla.json'];
+const shell = ['./', 'styles.css', 'app.js', 'demo-api.js', 'presentation.js', 'map.js', 'places.js', 'icon.svg', 'avenida.jpg', 'campus.jpg', 'ribera.jpg', 'app.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'barranquilla.json'];
+const scope = self.registration.scope;
+const shellURLs = shell.map(path => new URL(path, scope).href);
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(cacheName).then(cache => cache.addAll(shell)).then(() => self.skipWaiting()));
@@ -12,10 +14,14 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.includes('/api/')) return;
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).catch(() => caches.match('/')));
+    event.respondWith(fetch(request).catch(() => caches.match(new URL('./', scope).href)));
     return;
   }
-  if (shell.includes(url.pathname)) event.respondWith(caches.open(cacheName).then(cache => cache.match(url.pathname)).then(value => value ?? fetch(request)));
+  const target = new URL(url.href);
+  target.search = '';
+  if (shellURLs.includes(target.href)) {
+    event.respondWith(caches.match(request).then(value => value ?? fetch(request)));
+  }
 });
